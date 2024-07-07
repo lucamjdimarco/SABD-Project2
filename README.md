@@ -2,7 +2,7 @@
 ## Build dei JAR delle query
 
 Per creare i JAR da inserire in Flink per la creazione del job:
-- Muoversi nella cartella di interesse, come ```FlinkKafka```, ```Query2``` o ```Query3```;
+- Muoversi nella cartella di interesse, come ```Query1```, ```Query2``` o ```Query3```;
 - Creare il pacchetto JAR con l'ausilio di Maven, con il seguente comando (richiede Maven installato sulla macchina in cui si compila il sorgente):
 
 ```bash
@@ -22,7 +22,7 @@ L'ambiente richiede circa 1 minuto di attesa per il setup completo. Lo start del
 
 Durante l'attesa di setup del cluster, è possibile caricare il JAR in Flink. Di seguito vengono elencati i comandi per ogni JAR di ogni query:
 
-- Query1: ```docker cp FlinkKafka/target/FlinkKafka-1.0-SNAPSHOT.jar flink-jobmanager:/job.jar```
+- Query1: ```docker cp Query1/target/Query1-1.0-SNAPSHOT.jar flink-jobmanager:/job.jar```
 
 - Query2: ```docker cp Query2/target/Query2-1.0-SNAPSHOT.jar flink-jobmanager:/job.jar ```
 

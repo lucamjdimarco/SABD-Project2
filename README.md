@@ -32,9 +32,13 @@ Successivamemte, atteso il minuto di setup, è possibile avviare il Job con il s
 ```bash
   docker exec -it flink-jobmanager flink run /job.jar
 ```
+Se presenta errori come il topic non creato, attendere ancora qualche secondo e riprovare il comando indicato precedentemente, il setup dell'ambiente varia da macchina host a macchina host.
 
 ## Interazione con i componenti del sistema
 Successivamente al tempo di setup del cluster è possibile interagire correttamente con i componenti del sistema, nello specifico:
 
 - Flink: UI Web accedibile all'indirizzo ```localhost:8081```
 - Kafdrop UI Web accedibile all'indirizzo ```localhost:9000```
+
+## Chiusura del cluster e interruzione
+Per eseguire la chiusura e l'eliminazione del cluster, eseguire il comando ```docker-compose down```.

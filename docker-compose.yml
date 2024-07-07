@@ -75,15 +75,15 @@ services:
 
 
   python-data-ingestion:
-    image: python:3.9  # Usa un'immagine Python base, puoi sostituire con la versione specifica necessaria
+    image: python:3.9 
     container_name: python
     volumes:
       - ./raw_data_medium-utv_sorted.csv:/app/raw_data_medium-utv_sorted.csv  
       - ./ingestion.py:/app/ingestion.py
       - ./requirements.txt:/app/requirements.txt
-    working_dir: /app  # Directory di lavoro all'interno del container
+    working_dir: /app  
     environment:
-      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092  # Variabili d'ambiente per la configurazioneù
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092  
     command: >
       bash -c "pip install -r requirements.txt && python ingestion.py"
     depends_on:

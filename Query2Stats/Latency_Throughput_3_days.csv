@@ -1,0 +1,7 @@
+Window: 2023-04-01 00:00:00 to 2023-04-04 00:00:00, Duration: 3 ms, Throughput:3666.6666666666665 message/sec, 590333.3333333334 bytes/sec
+Window: 2023-04-04 00:00:00 to 2023-04-07 00:00:00, Duration: 2 ms, Throughput:12000.0 message/sec, 1949500.0 bytes/sec
+Window: 2023-04-07 00:00:00 to 2023-04-10 00:00:00, Duration: 5 ms, Throughput:3800.0 message/sec, 628400.0 bytes/sec
+Window: 2023-04-10 00:00:00 to 2023-04-13 00:00:00, Duration: 4 ms, Throughput:6250.0 message/sec, 1020750.0 bytes/sec
+Window: 2023-04-13 00:00:00 to 2023-04-16 00:00:00, Duration: 7 ms, Throughput:2714.285714285714 message/sec, 446571.4285714286 bytes/sec
+Window: 2023-04-16 00:00:00 to 2023-04-19 00:00:00, Duration: 1 ms, Throughput:17000.0 message/sec, 2821000.0 bytes/sec
+Window: 2023-04-19 00:00:00 to 2023-04-22 00:00:00, Duration: 6 ms, Throughput:3333.3333333333335 message/sec, 547833.3333333334 bytes/sec

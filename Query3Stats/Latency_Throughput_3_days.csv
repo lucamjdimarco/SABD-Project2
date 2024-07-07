@@ -1,0 +1,7 @@
+Window: 2023-04-01 00:00:00 to 2023-04-04 00:00:00, Duration: 140 ms, Throughput:487414.2857142857 message/sec, 6.376859999999999E7 bytes/sec
+Window: 2023-04-04 00:00:00 to 2023-04-07 00:00:00, Duration: 94 ms, Throughput:722702.1276595745 message/sec, 9.455981914893617E7 bytes/sec
+Window: 2023-04-07 00:00:00 to 2023-04-10 00:00:00, Duration: 153 ms, Throughput:444483.66013071896 message/sec, 5.816499346405229E7 bytes/sec
+Window: 2023-04-10 00:00:00 to 2023-04-13 00:00:00, Duration: 98 ms, Throughput:695551.0204081632 message/sec, 9.099415306122449E7 bytes/sec
+Window: 2023-04-13 00:00:00 to 2023-04-16 00:00:00, Duration: 46 ms, Throughput:984304.3478260869 message/sec, 1.2878858695652173E8 bytes/sec
+Window: 2023-04-16 00:00:00 to 2023-04-19 00:00:00, Duration: 44 ms, Throughput:1029613.6363636365 message/sec, 1.347045909090909E8 bytes/sec
+Window: 2023-04-19 00:00:00 to 2023-04-22 00:00:00, Duration: 83 ms, Throughput:817722.891566265 message/sec, 1.0698265060240963E8 bytes/sec

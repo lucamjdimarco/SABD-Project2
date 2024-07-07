@@ -1,0 +1,95 @@
+services:
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
+      - KAFKA_MESSAGE_MAX_BYTES=2147483647  # 2 GB
+      - KAFKA_REPLICA_FETCH_MAX_BYTES=2147483647  # 2 GB
+      - KAFKA_SOCKET_RECEIVE_BUFFER_BYTES=2147483647  # 2 GB
+      - KAFKA_SOCKET_REQUEST_MAX_BYTES=2147483647  # 2 GB
+      - KAFKA_FETCH_MAX_BYTES=2147483647  # 2 GB
+      - KAFKA_MAX_PARTITION_FETCH_BYTES=2147483647  # 2 GB
+      - KAFKA_HEAP_OPTS=-Xmx4G -Xms4G  # 4 GB di heap
+    #  - EXTRA_JAVA_OPTIONS=-Xmx4G
+    networks:
+      - flink-net
+
+  flink-jobmanager:
+    image: flink:latest
+    container_name: flink-jobmanager
+    ports:
+      - "8081:8081"
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: flink-jobmanager
+        jobmanager.memory.process.size: 2048m
+    command: jobmanager
+    depends_on:
+      - kafka
+    networks:
+      - flink-net
+
+  flink-taskmanager:
+    image: flink:latest
+    container_name: flink-taskmanager
+    environment:
+      - |
+        FLINK_PROPERTIES=
+        taskmanager.numberOfTaskSlots: 2
+        taskmanager.memory.process.size: 2048m
+        jobmanager.rpc.address: flink-jobmanager
+    command: taskmanager
+    depends_on:
+      - flink-jobmanager
+      - kafka
+    networks:
+      - flink-net
+  
+  zookeeper:
+    image: zookeeper:3.8.0
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+      - flink-net
+
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    container_name: kafdrop
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: 'kafka:9092'
+      JVM_OPTS: -Xms32M -Xmx64M
+      SERVER_PORT: 9000
+    networks:
+      - flink-net
+
+
+  python-data-ingestion:
+    image: python:3.9  # Usa un'immagine Python base, puoi sostituire con la versione specifica necessaria
+    container_name: python
+    volumes:
+      - ./raw_data_medium-utv_sorted.csv:/app/raw_data_medium-utv_sorted.csv  
+      - ./ingestion.py:/app/ingestion.py
+      - ./requirements.txt:/app/requirements.txt
+    working_dir: /app  # Directory di lavoro all'interno del container
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092  # Variabili d'ambiente per la configurazioneù
+    command: >
+      bash -c "pip install -r requirements.txt && python ingestion.py"
+    depends_on:
+      - kafka
+    networks:
+      - flink-net
+networks:
+  flink-net:
+    driver: bridge

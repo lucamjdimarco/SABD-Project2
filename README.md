@@ -22,11 +22,20 @@ L'ambiente richiede circa 1 minuto di attesa per il setup completo. Lo start del
 
 Durante l'attesa di setup del cluster, è possibile caricare il JAR in Flink. Di seguito vengono elencati i comandi per ogni JAR di ogni query:
 
-- Query1: ```docker cp Query1/target/Query1-1.0-SNAPSHOT.jar flink-jobmanager:/job.jar```
+- Query1:
+```bash
+  docker cp Query1/target/Query1-1.0-SNAPSHOT.jar flink-jobmanager:/job.jar
+```
 
-- Query2: ```docker cp Query2/target/Query2-1.0-SNAPSHOT.jar flink-jobmanager:/job.jar ```
+- Query2:
+```bash
+  docker cp Query2/target/Query2-1.0-SNAPSHOT.jar flink-jobmanager:/job.jar
+```
 
-- Query3: ```docker cp Query3/target/Query3-1.0-SNAPSHOT.jar flink-jobmanager:/job.jar```
+- Query3:
+```bash
+  docker cp Query3/target/Query3-1.0-SNAPSHOT.jar flink-jobmanager:/job.jar
+```
 
 Successivamemte, atteso il minuto di setup, è possibile avviare il Job con il seguente comando:
 ```bash

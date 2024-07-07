@@ -2,7 +2,7 @@
 ## Build dei JAR delle query
 
 Per creare i JAR da inserire in Flink per la creazione del job:
-- Muoversi nella cartella di interesse, come ```Query1```, ```Query2``` o ```Query3```;
+- Muoversi nella cartella di interesse, come ```FlinkKafka```, ```Query2``` o ```Query3```;
 - Creare il pacchetto JAR con l'ausilio di Maven, con il seguente comando (richiede Maven installato sulla macchina in cui si compila il sorgente):
 
 ```bash

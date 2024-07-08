@@ -51,3 +51,38 @@ Successivamente al tempo di setup del cluster è possibile interagire correttame
 
 ## Chiusura del cluster e interruzione
 Per eseguire la chiusura e l'eliminazione del cluster, eseguire il comando ```docker-compose down```.
+
+## Recupero dei risultati
+Per il recupero dei risultati a seguito dell'elaborazione di Flink eseguire i seguenti comandi:
+- Query1:
+```bash
+  docker cp flink-taskmanager:/opt/flink/output_1_day.csv ./
+```
+```bash
+  docker cp flink-taskmanager:/opt/flink/output_3_days.csv ./
+```
+```bash
+  docker cp flink-taskmanager:/opt/flink/output_23_days.csv ./
+```
+
+- Query2:
+```bash
+  docker cp flink-taskmanager:/opt/flink/daily_top10.csv ./
+```
+```bash
+  docker cp flink-taskmanager:/opt/flink/three_day_top10.csv ./
+```
+```bash
+  docker cp flink-taskmanager:/opt/flink/all_day_top10.csv ./
+```
+
+- Query3:
+```bash
+  docker cp flink-taskmanager:/opt/flink/one_day_stats.csv ./
+```
+```bash
+  docker cp flink-taskmanager:/opt/flink/three_day_stats.csv ./
+```
+```bash
+  docker cp flink-taskmanager:/opt/flink/all_time_stats.csv ./
+```

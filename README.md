@@ -86,3 +86,38 @@ Per il recupero dei risultati a seguito dell'elaborazione di Flink eseguire i se
 ```bash
   docker cp flink-taskmanager:/opt/flink/all_time_stats.csv ./
 ```
+
+## Recupero delle metriche
+Per il recupero delle metriche di latenza a seguito dell'elaborazione di Flink eseguire i seguenti comandi:
+- Query1:
+```bash
+  docker cp flink-taskmanager:/opt/flink/latency_1_day.csv ./
+```
+```bash
+  docker cp flink-taskmanager:/opt/flink/latency_3_days.csv ./
+```
+```bash
+  docker cp flink-taskmanager:/opt/flink/latency_23_days.csv ./
+```
+
+- Query2:
+```bash
+  docker cp flink-taskmanager:/opt/flink/daily_latency.csv ./
+```
+```bash
+  docker cp flink-taskmanager:/opt/flink/three_day_latency.csv ./
+```
+```bash
+  docker cp flink-taskmanager:/opt/flink/all_days_latency.csv ./
+```
+
+- Query3:
+```bash
+  docker cp flink-taskmanager:/opt/flink/daily_latency.csv ./
+```
+```bash
+  docker cp flink-taskmanager:/opt/flink/three_day_latency.csv ./
+```
+```bash
+  docker cp flink-taskmanager:/opt/flink/all_time_latency.csv ./
+```

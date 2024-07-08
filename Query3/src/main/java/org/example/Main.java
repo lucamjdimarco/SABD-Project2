@@ -112,7 +112,6 @@ public class Main {
         
         return stream
                 .windowAll(TumblingEventTimeWindows.of(windowSize, offset))
-                //.windowAll(TumblingEventTimeWindows.of(windowSize))
                 .apply(new CalculateStatsAllWindowFunction(latencyFilePath));
     }
 
@@ -149,7 +148,7 @@ public class Main {
             try {
                 Files.createFile(latencyPath);
             } catch (FileAlreadyExistsException e) {
-                // File già esistente, nessuna azione necessaria
+
             }
             long startTime = System.nanoTime(); // Inizio misurazione tempo
             

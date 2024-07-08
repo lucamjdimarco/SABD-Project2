@@ -307,14 +307,14 @@ public class Main {
     public static void main(String[] args) throws Exception {
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
-        // Define Kafka consumer
+        // Kafka consumer
         FlinkKafkaConsumer<String> consumer = new FlinkKafkaConsumer<>(
                 "my-topic",
                 new SimpleStringSchema(),
                 getKafkaProperties()
         );
 
-        // Configure watermark strategy based on the date field
+        // Configure watermark strategy
         WatermarkStrategy<Message> watermarkStrategy = WatermarkStrategy
                 .<Message>forBoundedOutOfOrderness(Duration.ofMinutes(1))
                 .withTimestampAssigner((event, timestamp) -> event.getDate());
@@ -328,15 +328,7 @@ public class Main {
                 .filter(message -> message != null && "1".equals(message.getFailure()))  // Filter only messages with failure
                 .assignTimestampsAndWatermarks(watermarkStrategy);
 
-        // Add a throughput monitoring map function
-        // messageStream = messageStream.map(new ThroughputMonitorMapFunction());
-
-        // DataStream<Tuple2<Message, Long>> latencyStream = messageStream
-        //         .map(new LatencyCalculatorMapFunction());
-
-                
-        //latencyStream.addSink(new OutputFormatSinkFunction<>(new LatencyCsvOutputFormat("latency.csv")));
-
+        
         DataStream<Tuple3<String, Integer, List<Message>>> failureStream = messageStream
                 .map(message -> Tuple3.of(message.getVaultId(), 1, List.of(message)))
                 .returns(Types.TUPLE(Types.STRING, Types.INT, Types.LIST(Types.GENERIC(Message.class))));
@@ -371,7 +363,6 @@ public class Main {
 
         return failureStream
                 .windowAll(TumblingEventTimeWindows.of(windowSize, offset))
-                //.windowAll(TumblingEventTimeWindows.of(windowSize, Time.days(13)))
                 .apply(new AllWindowFunction<Tuple3<String, Integer, List<Message>>, String, TimeWindow>() {
                     @Override
                     public void apply(TimeWindow window, Iterable<Tuple3<String, Integer, List<Message>>> values, Collector<String> out) throws Exception {
@@ -384,7 +375,6 @@ public class Main {
                         try {
                             Files.createFile(latencyPath);
                         } catch (FileAlreadyExistsException e) {
-                            // File già esistente, nessuna azione necessaria
                         }
                         // Group by vault ID and aggregate the number of failures
                         Map<String, Tuple3<String, Integer, List<Message>>> groupedFailures = StreamSupport.stream(values.spliterator(), false)
@@ -404,7 +394,6 @@ public class Main {
                                 .limit(10)
                                 .collect(Collectors.toList());
 
-                        // Reinitialize DateTimeFormatter inside the method
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 
                         // Convert start and end time of the window to readable format
@@ -412,7 +401,7 @@ public class Main {
                         String windowEnd = formatter.format(Instant.ofEpochMilli(window.getEnd()));
 
                         // Log to indicate the time interval of the window
-                        System.out.println("Processing window: " + windowStart + " to " + windowEnd);
+                        //System.out.println("Processing window: " + windowStart + " to " + windowEnd);
 
                         StringBuilder resultBuilder = new StringBuilder();
                         resultBuilder.append("Window Start,Window End,Vault ID,Failures,Disk Details\n");
@@ -452,7 +441,7 @@ public class Main {
                                                 .collect(Collectors.joining(";")))
                                         .append("\n");
                                 // Scrivi la latenza nel file di latenza
-                                String latencyRecord = windowStart + ", vault_id:" + failure.f0 + ", " + latency + "\n";
+                                //String latencyRecord = windowStart + ", vault_id:" + failure.f0 + ", " + latency + "\n";
                                 //Files.write(latencyPath, latencyRecord.getBytes(), StandardOpenOption.APPEND);
                             }
                         }
@@ -581,22 +570,22 @@ public class Main {
         }
     }
 
-    public static class ThroughputMonitorMapFunction extends RichMapFunction<Message, Message> {
-        private transient Counter counter;
+    // public static class ThroughputMonitorMapFunction extends RichMapFunction<Message, Message> {
+    //     private transient Counter counter;
 
-        @Override
-        public void open(Configuration parameters) throws Exception {
-            this.counter = getRuntimeContext()
-                    .getMetricGroup()
-                    .counter("messageCounter");
-        }
+    //     @Override
+    //     public void open(Configuration parameters) throws Exception {
+    //         this.counter = getRuntimeContext()
+    //                 .getMetricGroup()
+    //                 .counter("messageCounter");
+    //     }
 
-        @Override
-        public Message map(Message message) throws Exception {
-            this.counter.inc();
-            return message;
-        }
-    }
+    //     @Override
+    //     public Message map(Message message) throws Exception {
+    //         this.counter.inc();
+    //         return message;
+    //     }
+    // }
 
     public static class IngressTimestampMapFunction extends RichMapFunction<String, Message> {
         @Override
@@ -609,47 +598,47 @@ public class Main {
         }
     }
 
-    public static class LatencyCalculatorMapFunction extends RichMapFunction<Message, Tuple2<Message, Long>> {
-        @Override
-        public Tuple2<Message, Long> map(Message message) throws Exception {
-            long currentTime = System.currentTimeMillis();
-            long latency = currentTime - message.getIngressTimestamp();
-            return Tuple2.of(message, latency);
-        }
-    }
+    // public static class LatencyCalculatorMapFunction extends RichMapFunction<Message, Tuple2<Message, Long>> {
+    //     @Override
+    //     public Tuple2<Message, Long> map(Message message) throws Exception {
+    //         long currentTime = System.currentTimeMillis();
+    //         long latency = currentTime - message.getIngressTimestamp();
+    //         return Tuple2.of(message, latency);
+    //     }
+    // }
 
-    public static class LatencyCsvOutputFormat implements OutputFormat<Tuple2<Message, Long>> {
-        private final String filePath;
+    // public static class LatencyCsvOutputFormat implements OutputFormat<Tuple2<Message, Long>> {
+    //     private final String filePath;
     
-        public LatencyCsvOutputFormat(String filePath) {
-            this.filePath = filePath;
-        }
+    //     public LatencyCsvOutputFormat(String filePath) {
+    //         this.filePath = filePath;
+    //     }
     
-        @Override
-        public void configure(Configuration parameters) {
-        }
+    //     @Override
+    //     public void configure(Configuration parameters) {
+    //     }
     
-        @Override
-        public void open(int taskNumber, int numTasks) throws IOException {
-            File file = new File(filePath);
-            if (taskNumber == 0 && file.exists()) {
-                file.delete();
-            }
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-        }
+    //     @Override
+    //     public void open(int taskNumber, int numTasks) throws IOException {
+    //         File file = new File(filePath);
+    //         if (taskNumber == 0 && file.exists()) {
+    //             file.delete();
+    //         }
+    //         if (!file.exists()) {
+    //             file.createNewFile();
+    //         }
+    //     }
     
-        @Override
-        public void writeRecord(Tuple2<Message, Long> record) throws IOException {
-            String result = record.f0.getVaultId() + "," + record.f1 + "\n";
-            Files.write(Paths.get(filePath), result.getBytes(), StandardOpenOption.APPEND);
-        }
+    //     @Override
+    //     public void writeRecord(Tuple2<Message, Long> record) throws IOException {
+    //         String result = record.f0.getVaultId() + "," + record.f1 + "\n";
+    //         Files.write(Paths.get(filePath), result.getBytes(), StandardOpenOption.APPEND);
+    //     }
     
-        @Override
-        public void close() throws IOException {
-        }
-    }
+    //     @Override
+    //     public void close() throws IOException {
+    //     }
+    // }
 
     
     

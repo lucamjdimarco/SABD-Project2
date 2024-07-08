@@ -3,15 +3,6 @@ from kafka import KafkaProducer
 import time
 import json
 
-# Funzione per inviare i dati a Kafka
-def send_to_kafka(producer, topic, dataframe):
-    for index, row in dataframe.iterrows():
-        #print(f"Invio della riga {index}...")
-        message = row.to_json().encode('utf-8')
-        #print(f"Message: {message}")
-        producer.send(topic, message)
-        producer.flush()
-        time.sleep(0.0000000001)  # Sleep per simulare lo streaming lento
 
 def send_to_kafka_dailyByDaily(producer, topic, dataframe):
     messages = []
@@ -28,18 +19,8 @@ def send_to_kafka_dailyByDaily(producer, topic, dataframe):
 
     
     producer.flush()
-    time.sleep(10)
-    # batch_size = 1000
-    # num_batches = (len(dataframe) + batch_size - 1) // batch_size
-
-    # for batch_num in range(num_batches):
-    #     start_index = batch_num * batch_size
-    #     end_index = min(start_index + batch_size, len(dataframe))
-    #     batch_df = dataframe.iloc[start_index:end_index]
-    #     message = batch_df.to_json(orient='records').encode('utf-8')
-    #     producer.send(topic, message)
-    #     producer.flush()
-    #     time.sleep(0.000000001)  # Sleep per simulare lo streaming lento
+    time.sleep(20) # Sleep per 20 secondi tra i messaggi per ridurre la velocità di invio e simulare la distanza tra i giorni
+   
 
 # Percorso del file CSV
 csv_file = './raw_data_medium-utv_sorted.csv'
@@ -100,18 +81,6 @@ except Exception as e:
 # Filtra le righe con date valide
 df = df.dropna(subset=['date'])
 
-#Aggiungi righe con date specifiche e valori nulli
-# new_dates = ['2023-04-24T00:00:00.000000', '2023-04-25T00:00:00.000000']
-# new_rows = []
-# for new_date in new_dates:
-#     #new_row = {col: None for col in df.columns}
-#     new_row = {col: '0' for col in df.columns}  # Imposta tutti i campi a '0'
-#     new_row['date'] = pd.to_datetime(new_date, format='%Y-%m-%dT%H:%M:%S.%f', errors='coerce')
-#     new_rows.append(new_row)
-    #df = df.append(new_row, ignore_index=True)
-
-# new_df = pd.DataFrame(new_rows)
-# df = pd.concat([df, new_df], ignore_index=True)
 
 print("Invio dei dati a Kafka...")
 # Crea un produttore Kafka

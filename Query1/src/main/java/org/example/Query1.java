@@ -244,7 +244,7 @@ public class Query1 {
                     try {
                         Files.createFile(latencyFilePath);
                     } catch (FileAlreadyExistsException e) {
-                        // File già esistente, nessuna azione necessaria
+                        
                     }
 
             for (Tuple2<Long, Message> element : elements) {
@@ -252,7 +252,7 @@ public class Query1 {
                 String vaultId = element.f1.getVaultId();
                 String temperatureStr = element.f1.getS194TemperatureCelsius();
 
-                 // Calcolo della dimensione in byte del messaggio
+                 // Calcolo dimensione in byte del messaggio
                 String messageJson = objectMapper.writeValueAsString(element.f1);
                 totalBytes += messageJson.getBytes().length;
 
@@ -268,8 +268,8 @@ public class Query1 {
                         statisticsMap.put(vaultId, stats);
                     }
                     element.f1.setProcessingEndTime(System.currentTimeMillis());
-                    long latency = element.f1.getProcessingEndTime() - element.f1.getIngressTimestamp();
-                    String latencyRecord = millisToDateTime(context.window().getStart()).format(FORMATTER) + "," + latency + "\n";
+                    //long latency = element.f1.getProcessingEndTime() - element.f1.getIngressTimestamp();
+                    //String latencyRecord = millisToDateTime(context.window().getStart()).format(FORMATTER) + "," + latency + "\n";
                     //Files.write(latencyFilePath, latencyRecord.getBytes(), StandardOpenOption.APPEND);
                 } catch (NumberFormatException e) {
                     System.err.println("Errore durante il parsing della temperatura: " + temperatureStr);
@@ -296,7 +296,7 @@ public class Query1 {
             }
 
             long endTime = System.nanoTime();
-            long duration = TimeUnit.NANOSECONDS.toMillis(endTime - startTime); // Durata in millisecondi
+            long duration = TimeUnit.NANOSECONDS.toMillis(endTime - startTime); // Calcolo della durata in millisecondi
             // Calcolo del throughput in messaggi al secondo
             double throughputMessages = (double) messageCount / (duration / 1000.0);
 
@@ -348,30 +348,30 @@ public class Query1 {
         }
     }
 
-    public static class LatencyCalculatorAndLoggerMapFunction extends RichMapFunction<Tuple2<Long, Message>, Tuple2<Long, Message>> {
-        private final String latencyFilePath;
+    // public static class LatencyCalculatorAndLoggerMapFunction extends RichMapFunction<Tuple2<Long, Message>, Tuple2<Long, Message>> {
+    //     private final String latencyFilePath;
     
-        public LatencyCalculatorAndLoggerMapFunction(String latencyFilePath) {
-            this.latencyFilePath = latencyFilePath;
-        }
+    //     public LatencyCalculatorAndLoggerMapFunction(String latencyFilePath) {
+    //         this.latencyFilePath = latencyFilePath;
+    //     }
     
-        @Override
-        public void open(Configuration parameters) throws Exception {
-            java.nio.file.Path latencyPath = java.nio.file.Paths.get(latencyFilePath);
-            if (!java.nio.file.Files.exists(latencyPath)) {
-                java.nio.file.Files.createFile(latencyPath);
-            }
-        }
+    //     @Override
+    //     public void open(Configuration parameters) throws Exception {
+    //         java.nio.file.Path latencyPath = java.nio.file.Paths.get(latencyFilePath);
+    //         if (!java.nio.file.Files.exists(latencyPath)) {
+    //             java.nio.file.Files.createFile(latencyPath);
+    //         }
+    //     }
     
-        @Override
-        public Tuple2<Long, Message> map(Tuple2<Long, Message> value) throws Exception {
-            long currentTime = System.currentTimeMillis();
-            long latency = currentTime - value.f1.getIngressTimestamp();
-            String latencyRecord = currentTime + "," + latency + "\n";  // Usa il timestamp corrente
-            java.nio.file.Files.write(java.nio.file.Paths.get(latencyFilePath), latencyRecord.getBytes(), java.nio.file.StandardOpenOption.APPEND);
-            return value;
-        }
-    }
+    //     @Override
+    //     public Tuple2<Long, Message> map(Tuple2<Long, Message> value) throws Exception {
+    //         long currentTime = System.currentTimeMillis();
+    //         long latency = currentTime - value.f1.getIngressTimestamp();
+    //         String latencyRecord = currentTime + "," + latency + "\n";  // Usa il timestamp corrente
+    //         java.nio.file.Files.write(java.nio.file.Paths.get(latencyFilePath), latencyRecord.getBytes(), java.nio.file.StandardOpenOption.APPEND);
+    //         return value;
+    //     }
+    // }
     
 
 }

@@ -65,241 +65,7 @@ import javax.naming.Context;
 
 import javax.naming.Context;
 
-// public class Main {
 
-//     public static void main(String[] args) throws Exception {
-//         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-
-//         // Define Kafka consumer
-//         FlinkKafkaConsumer<String> consumer = new FlinkKafkaConsumer<>(
-//                 "my-topic",
-//                 new SimpleStringSchema(),
-//                 getKafkaProperties()
-//         );
-//         // Configure watermark strategy based on the date field
-//         WatermarkStrategy<Message> watermarkStrategy = WatermarkStrategy
-//                 .<Message>forBoundedOutOfOrderness(Duration.ofMinutes(1))
-//                 .withTimestampAssigner((event, timestamp) -> event.getDate());
-
-//         DataStream<String> rawStream = env.addSource(consumer);
-
-//         // Parse the raw JSON records into a Tuple3<String, Integer, List<Message>>
-//         DataStream<Message> messageStream = rawStream
-//                 .map(Message::create)
-//                 .filter(message -> message != null && "1".equals(message.getFailure()))  // Filter only messages with failure
-//                 .assignTimestampsAndWatermarks(watermarkStrategy);
-
-//         DataStream<Tuple3<String, Integer, List<Message>>> failureStream = messageStream
-//                 .map(message -> Tuple3.of(message.getVaultId(), 1, List.of(message)))
-//                 .returns(Types.TUPLE(Types.STRING, Types.INT, Types.LIST(Types.GENERIC(Message.class))));
-
-//         // Calculate top 10 vaults with highest failures in 1-day window
-//         DataStream<String> dailyTop10 = calculateTop10(failureStream, Time.days(1));
-
-//         // Calculate top 10 vaults with highest failures in 3-day window
-//         DataStream<String> threeDayTop10 = calculateTop10(failureStream, Time.days(3));
-
-//         //DataStream<String> allDayTop10 = calculateTop10(failureStream, Time.days(23));
-
-//         // Write results to CSV files
-//         dailyTop10.addSink(new OutputFormatSinkFunction<>(new CustomCsvOutputFormat("daily_top10.csv")));
-//         threeDayTop10.addSink(new OutputFormatSinkFunction<>(new CustomCsvOutputFormat("three_day_top10.csv")));
-//         //allDayTop10.addSink(new OutputFormatSinkFunction<>(new CustomCsvOutputFormat("all_day_top10.csv")));
-
-        
-
-//         env.execute("Disk Failure Ranking");
-//     }
-
-//     public static DataStream<String> calculateTop10(DataStream<Tuple3<String, Integer, List<Message>>> failureStream, Time windowSize) {
-//         /*return failureStream
-//                 .windowAll(TumblingEventTimeWindows.of(windowSize))
-//                 .apply(new AllWindowFunction<Tuple3<String, Integer, List<Message>>, String, TimeWindow>() {
-//                     @Override
-//                     public void apply(TimeWindow window, Iterable<Tuple3<String, Integer, List<Message>>> values, Collector<String> out) throws Exception {
-//                         List<Tuple3<String, Integer, List<Message>>> sortedFailures = StreamSupport.stream(values.spliterator(), false)
-//                                 .sorted((a, b) -> Integer.compare(b.f1, a.f1))
-//                                 .limit(10)
-//                                 .collect(Collectors.toList());
-
-//                         // Reinitialize DateTimeFormatter inside the method
-//                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
-
-//                         // Convert start and end time of the window to readable format
-//                         String windowStart = formatter.format(Instant.ofEpochMilli(window.getStart()));
-//                         String windowEnd = formatter.format(Instant.ofEpochMilli(window.getEnd()));
-
-//                         // Log to indicate the time interval of the window
-//                         System.out.println("Processing window: " + windowStart + " to " + windowEnd);
-
-//                         StringBuilder resultBuilder = new StringBuilder();
-//                         resultBuilder.append(windowStart).append(",").append(windowEnd);
-
-//                         for (Tuple3<String, Integer, List<Message>> failure : sortedFailures) {
-//                             resultBuilder.append("\n")
-//                                     .append(failure.f0)
-//                                     .append(",")
-//                                     .append(failure.f1)
-//                                     .append(",")
-//                                     .append(failure.f2.stream()
-//                                             .map(msg -> msg.getModel() + "-" + msg.getSerialNumber())
-//                                             .collect(Collectors.joining(";")));
-//                         }
-
-//                         String result = resultBuilder.toString();
-//                         out.collect(result);
-//                     }
-//                 });*/
-//         return failureStream
-//                 .windowAll(TumblingEventTimeWindows.of(windowSize, Time.days(0))) //, per finestra da 3 giorni: Time.days(2), per finestra globale: Time.days(13) 
-//                 .apply(new AllWindowFunction<Tuple3<String, Integer, List<Message>>, String, TimeWindow>() {
-//                     @Override
-//                     public void apply(TimeWindow window, Iterable<Tuple3<String, Integer, List<Message>>> values, Collector<String> out) throws Exception {
-//                         // Group by vault ID and aggregate the number of failures
-//                         Map<String, Tuple3<String, Integer, List<Message>>> groupedFailures = StreamSupport.stream(values.spliterator(), false)
-//                                 .collect(Collectors.toMap(
-//                                         tuple -> tuple.f0,
-//                                         tuple -> tuple,
-//                                         (tuple1, tuple2) -> {
-//                                             int newFailures = (Integer) tuple1.f1 + (Integer) tuple2.f1;
-//                                             List<Message> combinedMessages = Stream.concat(tuple1.f2.stream(), tuple2.f2.stream())
-//                                                     .collect(Collectors.toList());
-//                                             return Tuple3.of(tuple1.f0, newFailures, combinedMessages);
-//                                         }
-//                                 ));
-
-//                         List<Tuple3<String, Integer, List<Message>>> sortedFailures = groupedFailures.values().stream()
-//                                 .sorted((a, b) -> Integer.compare(b.f1, a.f1))
-//                                 .limit(10)
-//                                 .collect(Collectors.toList());
-
-//                         // Reinitialize DateTimeFormatter inside the method
-//                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
-
-//                         // Convert start and end time of the window to readable format
-//                         String windowStart = formatter.format(Instant.ofEpochMilli(window.getStart()));
-//                         String windowEnd = formatter.format(Instant.ofEpochMilli(window.getEnd()));
-
-//                         // Log to indicate the time interval of the window
-//                         System.out.println("Processing window: " + windowStart + " to " + windowEnd);
-
-//                         StringBuilder resultBuilder = new StringBuilder();
-//                         resultBuilder.append("Window Start,Window End,Vault ID,Failures,Disk Details\n");
-
-//                         for (Tuple3<String, Integer, List<Message>> failure : sortedFailures) {
-//                             resultBuilder.append(windowStart)
-//                                     .append(",")
-//                                     .append(windowEnd)
-//                                     .append(",")
-//                                     .append(failure.f0)
-//                                     .append(",")
-//                                     .append(failure.f1)
-//                                     .append(",")
-//                                     .append(failure.f2.stream()
-//                                             .map(msg -> msg.getModel() + "-" + msg.getSerialNumber())
-//                                             .collect(Collectors.joining(";")))
-//                                     .append("\n");
-//                         }
-
-//                         String result = resultBuilder.toString();
-//                         out.collect(result);
-//                     }
-//                 });
-//     }
-
-//     public static class CustomCsvOutputFormat implements OutputFormat<String> {
-//         private final String filePath;
-
-//         public CustomCsvOutputFormat(String filePath) {
-//             this.filePath = filePath;
-//         }
-
-//         @Override
-//         public void configure(Configuration parameters) {
-//         }
-
-//         @Override
-//         public void open(int taskNumber, int numTasks) throws IOException {
-//             File file = new File(filePath);
-//             if (taskNumber == 0 && file.exists()) {
-//                 file.delete();
-//             }
-//             if (!file.exists()) {
-//                 file.createNewFile();
-//             }
-//         }
-
-//         @Override
-//         public void writeRecord(String record) throws IOException {
-//             Files.write(Paths.get(filePath), (record + "\n").getBytes(), StandardOpenOption.APPEND);
-//         }
-
-//         @Override
-//         public void close() throws IOException {
-//         }
-//     }
-
-//     private static Properties getKafkaProperties() {
-//         Properties properties = new Properties();
-//         properties.setProperty("bootstrap.servers", "kafka:9092");
-//         properties.setProperty("group.id", "flink-group");
-//         return properties;
-//     }
-
-//     public static class Message {
-//         private Long date;
-//         private String serial_number;
-//         private String model;
-//         private String failure;
-//         private String vault_id;
-
-//         public Message(Long date, String serial_number, String model, String failure, String vault_id) {
-//             this.date = date;
-//             this.serial_number = serial_number;
-//             this.model = model;
-//             this.failure = failure;
-//             this.vault_id = vault_id;
-//         }
-
-//         public static Message create(String rawMessage) {
-//             ObjectMapper mapper = new ObjectMapper();
-//             try {
-//                 JsonNode root = mapper.readTree(rawMessage);
-
-//                 Long date = root.path("date").asLong();
-//                 String serialNumber = root.path("serial_number").asText();
-//                 String model = root.path("model").asText();
-//                 String failure = root.path("failure").asText();
-//                 String vaultId = root.path("vault_id").asText();
-
-//                 return new Message(date, serialNumber, model, failure, vaultId);
-//             } catch (Exception e) {
-//                 System.out.println("Errore di deserializzazione del JSON: " + e.getMessage());
-//                 return null;
-//             }
-//         }
-
-//         public Long getDate() {
-//             return date;
-//         }
-
-//         public String getSerialNumber() {
-//             return serial_number;
-//         }
-
-//         public String getModel() {
-//             return model;
-//         }
-
-//         public String getFailure() {
-//             return failure;
-//         }
-
-//         public String getVaultId() {
-//             return vault_id;
-//         }
-//     }
-// }
 
 
 public class Main {
@@ -328,14 +94,6 @@ public class Main {
                 .filter(message -> message != null && "1".equals(message.getFailure()))  // Filter only messages with failure
                 .assignTimestampsAndWatermarks(watermarkStrategy);
 
-        // Add a throughput monitoring map function
-        // messageStream = messageStream.map(new ThroughputMonitorMapFunction());
-
-        // DataStream<Tuple2<Message, Long>> latencyStream = messageStream
-        //         .map(new LatencyCalculatorMapFunction());
-
-                
-        //latencyStream.addSink(new OutputFormatSinkFunction<>(new LatencyCsvOutputFormat("latency.csv")));
 
         DataStream<Tuple3<String, Integer, List<Message>>> failureStream = messageStream
                 .map(message -> Tuple3.of(message.getVaultId(), 1, List.of(message)))
@@ -417,20 +175,7 @@ public class Main {
                         StringBuilder resultBuilder = new StringBuilder();
                         resultBuilder.append("Window Start,Window End,Vault ID,Failures,Disk Details\n");
 
-                        // for (Tuple3<String, Integer, List<Message>> failure : sortedFailures) {
-                        //     resultBuilder.append(windowStart)
-                        //             .append(",")
-                        //             .append(windowEnd)
-                        //             .append(",")
-                        //             .append(failure.f0)
-                        //             .append(",")
-                        //             .append(failure.f1)
-                        //             .append(",")
-                        //             .append(failure.f2.stream()
-                        //                     .map(msg -> msg.getModel() + "-" + msg.getSerialNumber())
-                        //                     .collect(Collectors.joining(";")))
-                        //             .append("\n");
-                        // }
+
 
                         for (Tuple3<String, Integer, List<Message>> failure : sortedFailures) {
                             for (Message msg : failure.f2) {
@@ -519,7 +264,7 @@ public class Main {
         private String vault_id;
         private Long ingressTimestamp;
         private Long processingEndTime;
-        
+
 
         public Message(Long date, String serial_number, String model, String failure, String vault_id) {
             this.date = date;
@@ -609,51 +354,51 @@ public class Main {
         }
     }
 
-    public static class LatencyCalculatorMapFunction extends RichMapFunction<Message, Tuple2<Message, Long>> {
-        @Override
-        public Tuple2<Message, Long> map(Message message) throws Exception {
-            long currentTime = System.currentTimeMillis();
-            long latency = currentTime - message.getIngressTimestamp();
-            return Tuple2.of(message, latency);
-        }
-    }
+    // public static class LatencyCalculatorMapFunction extends RichMapFunction<Message, Tuple2<Message, Long>> {
+    //     @Override
+    //     public Tuple2<Message, Long> map(Message message) throws Exception {
+    //         long currentTime = System.currentTimeMillis();
+    //         long latency = currentTime - message.getIngressTimestamp();
+    //         return Tuple2.of(message, latency);
+    //     }
+    // }
 
-    public static class LatencyCsvOutputFormat implements OutputFormat<Tuple2<Message, Long>> {
-        private final String filePath;
-    
-        public LatencyCsvOutputFormat(String filePath) {
-            this.filePath = filePath;
-        }
-    
-        @Override
-        public void configure(Configuration parameters) {
-        }
-    
-        @Override
-        public void open(int taskNumber, int numTasks) throws IOException {
-            File file = new File(filePath);
-            if (taskNumber == 0 && file.exists()) {
-                file.delete();
-            }
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-        }
-    
-        @Override
-        public void writeRecord(Tuple2<Message, Long> record) throws IOException {
-            String result = record.f0.getVaultId() + "," + record.f1 + "\n";
-            Files.write(Paths.get(filePath), result.getBytes(), StandardOpenOption.APPEND);
-        }
-    
-        @Override
-        public void close() throws IOException {
-        }
-    }
+    // public static class LatencyCsvOutputFormat implements OutputFormat<Tuple2<Message, Long>> {
+    //     private final String filePath;
 
-    
-    
-    
-    
+    //     public LatencyCsvOutputFormat(String filePath) {
+    //         this.filePath = filePath;
+    //     }
+
+    //     @Override
+    //     public void configure(Configuration parameters) {
+    //     }
+
+    //     @Override
+    //     public void open(int taskNumber, int numTasks) throws IOException {
+    //         File file = new File(filePath);
+    //         if (taskNumber == 0 && file.exists()) {
+    //             file.delete();
+    //         }
+    //         if (!file.exists()) {
+    //             file.createNewFile();
+    //         }
+    //     }
+
+    //     @Override
+    //     public void writeRecord(Tuple2<Message, Long> record) throws IOException {
+    //         String result = record.f0.getVaultId() + "," + record.f1 + "\n";
+    //         Files.write(Paths.get(filePath), result.getBytes(), StandardOpenOption.APPEND);
+    //     }
+
+    //     @Override
+    //     public void close() throws IOException {
+    //     }
+    // }
+
+
+
+
+
 }
 

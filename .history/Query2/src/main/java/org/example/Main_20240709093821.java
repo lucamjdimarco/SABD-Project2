@@ -164,8 +164,26 @@ public class Main {
                         String windowStart = formatter.format(Instant.ofEpochMilli(window.getStart()));
                         String windowEnd = formatter.format(Instant.ofEpochMilli(window.getEnd()));
 
+                        // Log to indicate the time interval of the window
+                        //System.out.println("Processing window: " + windowStart + " to " + windowEnd);
+
                         StringBuilder resultBuilder = new StringBuilder();
                         resultBuilder.append("Window Start,Window End,Vault ID,Failures,Disk Details\n");
+
+                        // for (Tuple3<String, Integer, List<Message>> failure : sortedFailures) {
+                        //     resultBuilder.append(windowStart)
+                        //             .append(",")
+                        //             .append(windowEnd)
+                        //             .append(",")
+                        //             .append(failure.f0)
+                        //             .append(",")
+                        //             .append(failure.f1)
+                        //             .append(",")
+                        //             .append(failure.f2.stream()
+                        //                     .map(msg -> msg.getModel() + "-" + msg.getSerialNumber())
+                        //                     .collect(Collectors.joining(";")))
+                        //             .append("\n");
+                        // }
 
                         for (Tuple3<String, Integer, List<Message>> failure : sortedFailures) {
                             for (Message msg : failure.f2) {
@@ -316,6 +334,23 @@ public class Main {
         }
     }
 
+    // public static class ThroughputMonitorMapFunction extends RichMapFunction<Message, Message> {
+    //     private transient Counter counter;
+
+    //     @Override
+    //     public void open(Configuration parameters) throws Exception {
+    //         this.counter = getRuntimeContext()
+    //                 .getMetricGroup()
+    //                 .counter("messageCounter");
+    //     }
+
+    //     @Override
+    //     public Message map(Message message) throws Exception {
+    //         this.counter.inc();
+    //         return message;
+    //     }
+    // }
+
     public static class IngressTimestampMapFunction extends RichMapFunction<String, Message> {
         @Override
         public Message map(String value) throws Exception {
@@ -327,5 +362,51 @@ public class Main {
         }
     }
 
+    // public static class LatencyCalculatorMapFunction extends RichMapFunction<Message, Tuple2<Message, Long>> {
+    //     @Override
+    //     public Tuple2<Message, Long> map(Message message) throws Exception {
+    //         long currentTime = System.currentTimeMillis();
+    //         long latency = currentTime - message.getIngressTimestamp();
+    //         return Tuple2.of(message, latency);
+    //     }
+    // }
+
+    // public static class LatencyCsvOutputFormat implements OutputFormat<Tuple2<Message, Long>> {
+    //     private final String filePath;
+    
+    //     public LatencyCsvOutputFormat(String filePath) {
+    //         this.filePath = filePath;
+    //     }
+    
+    //     @Override
+    //     public void configure(Configuration parameters) {
+    //     }
+    
+    //     @Override
+    //     public void open(int taskNumber, int numTasks) throws IOException {
+    //         File file = new File(filePath);
+    //         if (taskNumber == 0 && file.exists()) {
+    //             file.delete();
+    //         }
+    //         if (!file.exists()) {
+    //             file.createNewFile();
+    //         }
+    //     }
+    
+    //     @Override
+    //     public void writeRecord(Tuple2<Message, Long> record) throws IOException {
+    //         String result = record.f0.getVaultId() + "," + record.f1 + "\n";
+    //         Files.write(Paths.get(filePath), result.getBytes(), StandardOpenOption.APPEND);
+    //     }
+    
+    //     @Override
+    //     public void close() throws IOException {
+    //     }
+    // }
+
+    
+    
+    
+    
 }
 

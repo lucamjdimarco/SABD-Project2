@@ -95,6 +95,9 @@ public class Query1 {
                         WatermarkStrategy.<Tuple2<Long, Message>>forBoundedOutOfOrderness(Duration.ofSeconds(0))
                                 .withTimestampAssigner((SerializableTimestampAssigner<Tuple2<Long, Message>>) (element, recordTimestamp) -> element.f0)
                 );
+                //.map(new LatencyCalculatorAndLoggerMapFunction("latency.csv")) // Calcola e registra la latenza
+                // .name("Calculate and Log Latency")
+                // .setParallelism(2);
 
         // Finestra di 1 giorno
         processWindow(dataStream, Time.days(1), "output_1_day.csv", "latency_1_day.csv");
@@ -265,6 +268,9 @@ public class Query1 {
                         statisticsMap.put(vaultId, stats);
                     }
                     element.f1.setProcessingEndTime(System.currentTimeMillis());
+                    //long latency = element.f1.getProcessingEndTime() - element.f1.getIngressTimestamp();
+                    //String latencyRecord = millisToDateTime(context.window().getStart()).format(FORMATTER) + "," + latency + "\n";
+                    //Files.write(latencyFilePath, latencyRecord.getBytes(), StandardOpenOption.APPEND);
                 } catch (NumberFormatException e) {
                     System.err.println("Errore durante il parsing della temperatura: " + temperatureStr);
                 }
@@ -341,5 +347,31 @@ public class Query1 {
         public void close() throws IOException {
         }
     }
+
+    // public static class LatencyCalculatorAndLoggerMapFunction extends RichMapFunction<Tuple2<Long, Message>, Tuple2<Long, Message>> {
+    //     private final String latencyFilePath;
+    
+    //     public LatencyCalculatorAndLoggerMapFunction(String latencyFilePath) {
+    //         this.latencyFilePath = latencyFilePath;
+    //     }
+    
+    //     @Override
+    //     public void open(Configuration parameters) throws Exception {
+    //         java.nio.file.Path latencyPath = java.nio.file.Paths.get(latencyFilePath);
+    //         if (!java.nio.file.Files.exists(latencyPath)) {
+    //             java.nio.file.Files.createFile(latencyPath);
+    //         }
+    //     }
+    
+    //     @Override
+    //     public Tuple2<Long, Message> map(Tuple2<Long, Message> value) throws Exception {
+    //         long currentTime = System.currentTimeMillis();
+    //         long latency = currentTime - value.f1.getIngressTimestamp();
+    //         String latencyRecord = currentTime + "," + latency + "\n";  // Usa il timestamp corrente
+    //         java.nio.file.Files.write(java.nio.file.Paths.get(latencyFilePath), latencyRecord.getBytes(), java.nio.file.StandardOpenOption.APPEND);
+    //         return value;
+    //     }
+    // }
+    
 
 }

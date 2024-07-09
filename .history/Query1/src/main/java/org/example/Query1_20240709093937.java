@@ -342,4 +342,30 @@ public class Query1 {
         }
     }
 
+    // public static class LatencyCalculatorAndLoggerMapFunction extends RichMapFunction<Tuple2<Long, Message>, Tuple2<Long, Message>> {
+    //     private final String latencyFilePath;
+    
+    //     public LatencyCalculatorAndLoggerMapFunction(String latencyFilePath) {
+    //         this.latencyFilePath = latencyFilePath;
+    //     }
+    
+    //     @Override
+    //     public void open(Configuration parameters) throws Exception {
+    //         java.nio.file.Path latencyPath = java.nio.file.Paths.get(latencyFilePath);
+    //         if (!java.nio.file.Files.exists(latencyPath)) {
+    //             java.nio.file.Files.createFile(latencyPath);
+    //         }
+    //     }
+    
+    //     @Override
+    //     public Tuple2<Long, Message> map(Tuple2<Long, Message> value) throws Exception {
+    //         long currentTime = System.currentTimeMillis();
+    //         long latency = currentTime - value.f1.getIngressTimestamp();
+    //         String latencyRecord = currentTime + "," + latency + "\n";  // Usa il timestamp corrente
+    //         java.nio.file.Files.write(java.nio.file.Paths.get(latencyFilePath), latencyRecord.getBytes(), java.nio.file.StandardOpenOption.APPEND);
+    //         return value;
+    //     }
+    // }
+    
+
 }

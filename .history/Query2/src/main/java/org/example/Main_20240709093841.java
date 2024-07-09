@@ -316,6 +316,23 @@ public class Main {
         }
     }
 
+    // public static class ThroughputMonitorMapFunction extends RichMapFunction<Message, Message> {
+    //     private transient Counter counter;
+
+    //     @Override
+    //     public void open(Configuration parameters) throws Exception {
+    //         this.counter = getRuntimeContext()
+    //                 .getMetricGroup()
+    //                 .counter("messageCounter");
+    //     }
+
+    //     @Override
+    //     public Message map(Message message) throws Exception {
+    //         this.counter.inc();
+    //         return message;
+    //     }
+    // }
+
     public static class IngressTimestampMapFunction extends RichMapFunction<String, Message> {
         @Override
         public Message map(String value) throws Exception {
@@ -327,5 +344,51 @@ public class Main {
         }
     }
 
+    // public static class LatencyCalculatorMapFunction extends RichMapFunction<Message, Tuple2<Message, Long>> {
+    //     @Override
+    //     public Tuple2<Message, Long> map(Message message) throws Exception {
+    //         long currentTime = System.currentTimeMillis();
+    //         long latency = currentTime - message.getIngressTimestamp();
+    //         return Tuple2.of(message, latency);
+    //     }
+    // }
+
+    // public static class LatencyCsvOutputFormat implements OutputFormat<Tuple2<Message, Long>> {
+    //     private final String filePath;
+    
+    //     public LatencyCsvOutputFormat(String filePath) {
+    //         this.filePath = filePath;
+    //     }
+    
+    //     @Override
+    //     public void configure(Configuration parameters) {
+    //     }
+    
+    //     @Override
+    //     public void open(int taskNumber, int numTasks) throws IOException {
+    //         File file = new File(filePath);
+    //         if (taskNumber == 0 && file.exists()) {
+    //             file.delete();
+    //         }
+    //         if (!file.exists()) {
+    //             file.createNewFile();
+    //         }
+    //     }
+    
+    //     @Override
+    //     public void writeRecord(Tuple2<Message, Long> record) throws IOException {
+    //         String result = record.f0.getVaultId() + "," + record.f1 + "\n";
+    //         Files.write(Paths.get(filePath), result.getBytes(), StandardOpenOption.APPEND);
+    //     }
+    
+    //     @Override
+    //     public void close() throws IOException {
+    //     }
+    // }
+
+    
+    
+    
+    
 }
 

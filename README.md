@@ -11,7 +11,7 @@ Per creare i JAR da inserire in Flink per la creazione del job:
 A questo punto il JAR sarà nella cartella ```target``` della cartella di interesse.
 
 ## Modifica del CSV con tuple di controllo
-Per la gestione corretta delle finestre di Flink, si è reso necessario di apportare modifiche al dataset: nello specifico l'inserimento di alcune tuple di controllo. Per eseguire il setup corretto, nella macchina host eseguire il file python denominato ```concat.py``` nella stessa cartella dove presente il dataset. Verranno inserite delle tuple fittizie utili al controllo delle finestre iniziali e finali.
+Per la gestione corretta delle finestre di Flink, si è reso necessario di apportare modifiche al dataset: nello specifico l'inserimento di alcune tuple di controllo. Per eseguire il setup corretto, nella macchina host eseguire il file python denominato ```concat.py``` nella stessa cartella dove presente il dataset. Verranno inserite delle tuple fittizie utili al controllo delle finestre finali.
 
 ## Run del cluster Docker
 Una volta creato il JAR della query di interesse, muoversi all'interno della cartella principale del progetto, dove presente il ```docker-compose.yml```. Per lanciare il cluster Docker eseguire il comando: ```docker-compose up -d```. 
